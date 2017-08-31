@@ -33,6 +33,11 @@
 #include <numeric>
 #include "stomp_core/stomp.h"
 
+//store iteration value into file
+#include <fstream>
+#include <sstream>
+
+
 static const double DEFAULT_NOISY_COST_IMPORTANCE_WEIGHT = 1.0; /**< Default noisy cost importance weight */
 static const double MIN_COST_DIFFERENCE = 1e-8; /**< Minimum cost difference allowed during probability calculation */
 static const double MIN_CONTROL_COST_WEIGHT = 1e-8; /**< Minimum control cost weight allowed */
@@ -274,10 +279,18 @@ bool Stomp::solve(const Eigen::MatrixXd& initial_parameters,
     current_iteration_++;
   }
 
+ //--------------------------------------------------------- store number of iteration to files -------------------------------------------------
+  std::ofstream myfile;
+  std::string path = "/home/bfb-ws/catkin_ws/src/gstomp/experiments/output_data/stomp_iteration.txt";
+  myfile.open(path, std::ios::out | std::ios::app);
+
   if(parameters_valid_)
   {
     ROS_INFO("STOMP found a valid solution with cost %f after %i iterations",
              current_lowest_cost_,current_iteration_);
+
+    myfile << current_iteration_ << std::endl;
+
   }
   else
   {
@@ -285,6 +298,9 @@ bool Stomp::solve(const Eigen::MatrixXd& initial_parameters,
       ROS_ERROR("STOMP failed to find a valid solution after %i iterations",current_iteration_);
     else
       ROS_ERROR_STREAM("Stomp was terminated");
+
+    myfile << current_iteration_ << std::endl;
+
   }
 
   parameters_optimized = parameters_optimized_;
